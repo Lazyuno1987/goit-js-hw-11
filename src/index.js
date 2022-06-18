@@ -26,6 +26,7 @@ function showBtnLoadMore() {
   refs.loadMoreBtn.classList.remove('is-hidden');
 }
 hideBtnLoadMore();
+
 function hideBtnLoadMore() {
   refs.loadMoreBtn.classList.add('is-hidden');
 }
@@ -52,11 +53,12 @@ function onSearch(ev) {
   newsApiServise.query = ev.currentTarget.elements.query.value;
 
   newsApiServise.fetchArticles().then(({ hits, totalHits }) => {
-    if (totalHits >= 40) {
+    if (totalHits > 40) {
       Notify.success(`Hooray! We found ${(totalHits += 40)} images.`);
     }
-    if (hits.length < 40 && hits.length > 0) {
+    if (totalHits <= 40 && hits.length > 0) {
       Notify.success(`Hooray! We found ${hits.length} images.`);
+      hideBtnLoadMore();
     }
     if (hits.length === 0) {
       Notify.failure(
@@ -64,10 +66,7 @@ function onSearch(ev) {
       );
       hideBtnLoadMore();
     }
-    if (totalHits < hits.length) {
-      Notify.info("We're sorry, but you've reached the end of search results.");
-      hideBtnLoadMore();
-    }
+
     clearArticlesContainer();
     appendArticlesMarkup(hits);
     enableLoadMore();
@@ -77,17 +76,16 @@ function onSearch(ev) {
 function clearArticlesContainer() {
   refs.articlesContainer.innerHTML = '';
 }
-let localStor = 0;
 
 function onLoadMore() {
   disableLoadeMore();
   lightbox.refresh();
   newsApiServise.fetchArticles().then(({ hits, totalHits }) => {
-    localStor = totalHits;
     appendArticlesMarkup(hits);
     enableLoadMore();
-    if (totalHits < 0) {
+    if (localStorage.getItem('totalHits') < 0) {
       hideBtnLoadMore();
+      Notify.info("We're sorry, but you've reached the end of search results.");
     }
   });
 }

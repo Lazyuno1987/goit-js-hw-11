@@ -4,15 +4,17 @@ import Axios from 'axios';
 export default class NewsApiServise {
   constructor() {
     this.searchQuery = '';
-    this.page = 1;
+    this.page = 0;
   }
 
   async fetchArticles() {
     const url = `https://pixabay.com/api/?key=28074243-fd9335165c63977f864a46342&q=${this.searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40&page=${this.page}`;
 
     return await Axios.get(url).then(response => {
-      response.data.totalHits -= response.data.hits.length * this.page;
-      localStorage.setItem('totalHits', response.data.totalHits);
+      if (Number(localStorage.getItem('totalHits')) === 0 || this.page === 1) {
+        localStorage.setItem('totalHits', (response.data.totalHits -= 40));
+      }
+
       this.incrementPage();
       return response.data;
     });
