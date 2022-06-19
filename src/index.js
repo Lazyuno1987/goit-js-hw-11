@@ -20,7 +20,6 @@ let lightbox;
 const newsApiServise = new NewsApiServise();
 refs.searchForm.addEventListener('submit', onSearch);
 refs.loadMoreBtn.addEventListener('click', onLoadMore);
-refs.loadMoreBtn.addEventListener('click', localStorageChange);
 
 function showBtnLoadMore() {
   refs.loadMoreBtn.classList.remove('is-hidden');
@@ -49,12 +48,12 @@ function onSearch(ev) {
   newsApiServise.resetPage();
   showBtnLoadMore();
   disableLoadeMore();
-
+  clearArticlesContainer();
   newsApiServise.query = ev.currentTarget.elements.query.value;
 
   newsApiServise.fetchArticles().then(({ hits, totalHits }) => {
     if (totalHits > 40) {
-      Notify.success(`Hooray! We found ${(totalHits += 40)} images.`);
+      Notify.success(`Hooray! We found ${totalHits} images.`);
     }
     if (totalHits <= 40 && hits.length > 0) {
       Notify.success(`Hooray! We found ${hits.length} images.`);
@@ -67,7 +66,6 @@ function onSearch(ev) {
       hideBtnLoadMore();
     }
 
-    clearArticlesContainer();
     appendArticlesMarkup(hits);
     enableLoadMore();
   });
@@ -83,15 +81,11 @@ function onLoadMore() {
   newsApiServise.fetchArticles().then(({ hits, totalHits }) => {
     appendArticlesMarkup(hits);
     enableLoadMore();
-    if (localStorage.getItem('totalHits') < 0) {
+    if (hits.length <= 40) {
       hideBtnLoadMore();
       Notify.info("We're sorry, but you've reached the end of search results.");
     }
   });
-}
-function localStorageChange() {
-  let local = Number(localStorage.getItem('totalHits'));
-  localStorage.setItem('totalHits', (local -= 40));
 }
 
 function appendArticlesMarkup(hits) {
