@@ -46,10 +46,12 @@ function onSearch(ev) {
   ev.preventDefault();
 
   newsApiServise.resetPage();
-  incrisPerPage()
+  
   showBtnLoadMore();
   disableLoadeMore();
   clearArticlesContainer();
+  per_page = 0;
+  incrisPerPage();
   newsApiServise.query = ev.currentTarget.elements.query.value;
 
   newsApiServise.fetchArticles().then(({ hits, totalHits }) => {
