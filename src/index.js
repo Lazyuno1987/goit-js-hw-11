@@ -46,6 +46,7 @@ function onSearch(ev) {
   ev.preventDefault();
 
   newsApiServise.resetPage();
+  incrisPerPage()
   showBtnLoadMore();
   disableLoadeMore();
   clearArticlesContainer();
@@ -74,17 +75,26 @@ function onSearch(ev) {
 function clearArticlesContainer() {
   refs.articlesContainer.innerHTML = '';
 }
+let per_page = 0;
 
+function incrisPerPage() {
+  per_page += 40;
+}
 function onLoadMore() {
   disableLoadeMore();
   lightbox.refresh();
+  incrisPerPage()
   newsApiServise.fetchArticles().then(({ hits, totalHits }) => {
     appendArticlesMarkup(hits);
     enableLoadMore();
-    if (hits.length <= 40) {
-      hideBtnLoadMore();
+    console.log(hits.length)
+    console.log(per_page);
+    console.log(Math.ceil(totalHits / 40))
+    if (per_page > totalHits) {
+        hideBtnLoadMore();
       Notify.info("We're sorry, but you've reached the end of search results.");
     }
+   
   });
 }
 
